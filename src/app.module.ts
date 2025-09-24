@@ -28,8 +28,10 @@ import { VoteService } from './services/vote.service';
 		TypeOrmModule.forRoot({
 			type: 'better-sqlite3',
 			database: join(process.cwd(), 'database.sqlite3'),
-			entities: [Star, User, Vote],
-			synchronize: true,
+
+			entities: [join(process.cwd(), 'dist', '**', '*.entity.{ts,js}')],
+			migrations: [join(process.cwd(), 'dist', 'migrations', '*.js')],
+			migrationsRun: true,
 		}),
 
 		TypeOrmModule.forFeature([Star, User, Vote])

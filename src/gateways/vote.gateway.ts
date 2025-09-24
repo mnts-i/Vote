@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import prettyTime from 'pretty-time';
 import { Cron } from '@nestjs/schedule';
 import { Server } from 'socket.io';
@@ -58,6 +57,6 @@ export class VoteGateway implements OnGatewayInit {
 
         const benchmark = process.hrtime(startTime);
 
-        this.logger.log(`${dayjs().format('YYYY-MM-DD HH:mm:ss')}: Brodcasted votes ( ${prettyTime(benchmark)} )`);
+        this.logger.log(`Brodcasted votes ( ${prettyTime(benchmark)} )`);
     }
 }
