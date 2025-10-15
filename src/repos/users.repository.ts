@@ -60,4 +60,14 @@ export class UsersRepository {
 
         return fetchedUser;
     }
+
+    async validateToken(token: string) {
+        try {
+            await this.fetchByToken(token);
+            
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
 }

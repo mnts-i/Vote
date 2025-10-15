@@ -11,7 +11,7 @@ export class Initial1758621197666 implements MigrationInterface {
                 { name: 'field', type: 'varchar', isNullable: true },
                 { name: 'color', type: 'varchar', isNullable: true },
 
-                { name: 'create_at', type: 'datetime', default: `(datetime('now'))` },
+                { name: 'created_at', type: 'datetime', default: `(datetime('now'))` },
             ]
         });
 
@@ -25,7 +25,7 @@ export class Initial1758621197666 implements MigrationInterface {
                 { name: 'token', type: 'varchar' },
                 { name: 'is_admin', type: 'boolean', default: false },
 
-                { name: 'create_at', type: 'datetime', default: `(datetime('now'))` },
+                { name: 'created_at', type: 'datetime', default: `(datetime('now'))` },
             ]
         });
 
@@ -45,7 +45,7 @@ export class Initial1758621197666 implements MigrationInterface {
                 { name: 'star_id', type: 'integer' },
                 { name: 'score', type: 'integer' },
 
-                { name: 'create_at', type: 'datetime', default: `(datetime('now'))` },
+                { name: 'created_at', type: 'datetime', default: `(datetime('now'))` },
             ]
         });
 

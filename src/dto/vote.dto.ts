@@ -1,13 +1,13 @@
-import { IsInt, IsPositive, IsString, Length, Max, Min } from 'class-validator';
+import { PickType } from '@nestjs/mapped-types';
+import { IsInt, IsPositive, IsString, Max, Min } from 'class-validator';
 
-export class VoteDto {
+// DTOs
+import { TokenDto } from './token.dto';
+
+export class VoteDto extends PickType(TokenDto, ['token']) {
 
     @IsString()
     id: string;
-    
-    @IsString()
-    @Length(12, 12)
-    token: string;
 
     @IsInt()
     @IsPositive()
