@@ -63,11 +63,11 @@ export class UsersRepository {
 
     async validateToken(token: string) {
         try {
-            await this.fetchByToken(token);
+            const user =await this.fetchByToken(token);
             
-            return true;
+            return { valid: true, user };
         } catch (error) {
-            return false;
+            return { valid: false };
         }
     }
 }

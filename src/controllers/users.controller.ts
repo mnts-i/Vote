@@ -16,14 +16,13 @@ export class UsersController {
     async validate(
         @Body() { token }: TokenDto
     ) {
-        return { valid: await this.usersRepository.validateToken(token) };
+        return await this.usersRepository.validateToken(token);
     }
 
     @Post('login')
     async login(
         @Body() { token }: TokenDto
     ) {
-        console.log(token)
         return this.usersRepository.fetchByToken(token);
     }
 }
