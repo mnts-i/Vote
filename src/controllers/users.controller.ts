@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Logger, Post } from '@nestjs/common';
 
 // DTOs
 import { TokenDto } from 'src/dto/token.dto';
@@ -8,6 +8,8 @@ import { UsersRepository } from '../repos/users.repository';
 
 @Controller('api/users')
 export class UsersController {
+    private readonly logger = new Logger(UsersController.name);
+
     constructor(
         private usersRepository: UsersRepository,
     ) { }
@@ -23,6 +25,8 @@ export class UsersController {
     async login(
         @Body() { token }: TokenDto
     ) {
+        this.logger.log(`Login attempt: ${token}`);
+
         return this.usersRepository.fetchByToken(token);
     }
 }

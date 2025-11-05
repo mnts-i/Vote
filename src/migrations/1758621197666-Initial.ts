@@ -81,7 +81,7 @@ export class Initial1758621197666 implements MigrationInterface {
         }));
 
         await queryRunner.manager.getRepository(User).save({
-            token: 'fenery1986!!',
+            token: 'feneri1986!!',
             isAdmin: true,
         })
     }

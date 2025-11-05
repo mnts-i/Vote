@@ -17,7 +17,7 @@ export class UsersRepository {
         private repository: Repository<User>,
     ) { }
 
-    async generateUsers(total: number) {
+    async generateTokens(total: number) {
         const tokens = await this.repository.find({
             select: ['token']
         });
