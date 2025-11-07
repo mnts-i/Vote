@@ -6,6 +6,10 @@ import { ScheduleModule } from '@nestjs/schedule';
 // Websocket Gateways
 import { VoteGateway } from './gateways/vote.gateway';
 
+// Guards
+import { AuthenticateGuard } from './guards/authenticate.guard';
+import { AdministratorGuard } from './guards/administrator.guard';
+
 // Entities
 import { Star } from './entities/star.entity';
 import { User } from './entities/user.entity';
@@ -13,6 +17,7 @@ import { Vote } from './entities/vote.entity';
 
 // Controllers
 import { UsersController } from './controllers/users.controller';
+import { TokensController } from './controllers/tokens.controller';
 
 // Repositories
 import { UsersRepository } from './repos/users.repository';
@@ -38,9 +43,13 @@ import { VoteService } from './services/vote.service';
 	],
 	controllers: [
 		UsersController,
+		TokensController,
 	],
 	providers: [
 		VoteGateway,
+
+		AuthenticateGuard,
+		AdministratorGuard,
 
 		UsersRepository,
 		StarsRepository,

@@ -63,11 +63,19 @@ export class UsersRepository {
 
     async validateToken(token: string) {
         try {
-            const user =await this.fetchByToken(token);
-            
+            const user = await this.fetchByToken(token);
+
             return { valid: true, user };
         } catch (error) {
             return { valid: false };
         }
+    }
+
+    async truncateTokens() {
+        return this.repository
+            .createQueryBuilder()
+            .delete()
+            .where('isAdmin = false')
+            .execute();
     }
 }
