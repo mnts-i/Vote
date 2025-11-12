@@ -6,7 +6,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 // Entities
 import { User } from 'src/entities/user.entity';
 
-const nanoid = customAlphabet('0123456789qwertyuipfghka', 8);
+const nanoid = customAlphabet('123456789qwertyujlcvpfghka', 8);
 
 @Injectable()
 export class UsersRepository {
@@ -72,10 +72,21 @@ export class UsersRepository {
     }
 
     async truncateTokens() {
-        return this.repository
+        const result = this.repository
             .createQueryBuilder()
             .delete()
             .where('isAdmin = false')
             .execute();
+
+        this.cache.clear();
+
+        return result;
+    }
+
+    async fetchAll() {
+        return (await this.repository.find({
+            where: { isAdmin: false },
+            order: { token: 'ASC' },
+        })).map(({ token }) => token);
     }
 }

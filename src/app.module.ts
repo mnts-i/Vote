@@ -16,6 +16,7 @@ import { User } from './entities/user.entity';
 import { Vote } from './entities/vote.entity';
 
 // Controllers
+import { StarsController } from './controllers/stars.controller';
 import { UsersController } from './controllers/users.controller';
 import { TokensController } from './controllers/tokens.controller';
 
@@ -42,6 +43,7 @@ import { VoteService } from './services/vote.service';
 		TypeOrmModule.forFeature([Star, User, Vote])
 	],
 	controllers: [
+		StarsController,
 		UsersController,
 		TokensController,
 	],

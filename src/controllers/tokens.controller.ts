@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Logger, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Logger, Post, UseGuards } from '@nestjs/common';
 
 // Guards
 import { AuthenticateGuard } from 'src/guards/authenticate.guard';
@@ -33,5 +33,11 @@ export class TokensController {
         const { affected } = await this.usersRepository.truncateTokens();
 
         return { affected };
+    }
+
+    @UseGuards(AdministratorGuard)
+    @Get('all')
+    fetchAll() {
+        return this.usersRepository.fetchAll();
     }
 }

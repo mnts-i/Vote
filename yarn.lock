@@ -310,6 +310,14 @@
   resolved "https://registry.yarnpkg.com/@borewit/text-codec/-/text-codec-0.1.1.tgz#7e7f27092473d5eabcffef693a849f2cc48431da"
   integrity sha512-5L/uBxmjaCIX5h8Z+uu+kA9BQLkc/Wl06UGR5ajNRxu+/XjonB5i8JpgFMrPj3LXTCPA0pv8yxUvbUi+QthGGA==
 
+"@buka/class-transformer-extra@^2.1.4":
+  version "2.1.4"
+  resolved "https://registry.yarnpkg.com/@buka/class-transformer-extra/-/class-transformer-extra-2.1.4.tgz#a62d27c38c44fdd86e25839301c1bab3541f7899"
+  integrity sha512-UuLCOT2pjHTDTYOXXNck0bHHN3mTRmN8M44+ZIlhrnpFS8vZxMhaLVNBSwJ5kf66QohAdu27ZShSR/XgZ7dnfg==
+  dependencies:
+    dayjs "^1.11.13"
+    ramda "^0.30.1"
+
 "@colors/colors@1.5.0":
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/@colors/colors/-/colors-1.5.0.tgz#bb504579c1cae923e6576a4f5da43d25f97bdbd9"
@@ -4569,6 +4577,11 @@ queue-microtask@^1.2.2:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/queue-microtask/-/queue-microtask-1.2.3.tgz#4929228bbc724dfac43e0efb058caf7b6cfb6243"
   integrity sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==
+
+ramda@^0.30.1:
+  version "0.30.1"
+  resolved "https://registry.yarnpkg.com/ramda/-/ramda-0.30.1.tgz#7108ac95673062b060025052cd5143ae8fc605bf"
+  integrity sha512-tEF5I22zJnuclswcZMc8bDIrwRHRzf+NqVEmqg50ShAZMP7MWeR/RGDthfM/p+BlqvF2fXAzpn8i+SJcYD3alw==
 
 randombytes@^2.1.0:
   version "2.1.0"
