@@ -1,5 +1,5 @@
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 // Entities
@@ -17,14 +17,15 @@ export class StarsRepository {
         private repository: Repository<Star>
     ) { }
 
-    async fetchById(id: number) {
+    async fetchById(id: number, tx?: EntityManager) {
         const cachedStar = this.cache.get(id);
 
         if (cachedStar) {
             return cachedStar;
         }
 
-        const fetchedStar = await this.repository.findOneBy({ id });
+        const repository = tx ? tx.getRepository(Star) : this.repository;
+        const fetchedStar = await repository.findOneBy({ id });
 
         if (!fetchedStar) {
             throw new NotFoundException('Δε βρέθηκε το επιλεγμένο ταλέντο');

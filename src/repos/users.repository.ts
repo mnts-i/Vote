@@ -1,6 +1,6 @@
-import { Repository } from 'typeorm';
 import { customAlphabet } from 'nanoid';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 // Entities
@@ -43,14 +43,15 @@ export class UsersRepository {
         await this.repository.save(users);
     }
 
-    async fetchByToken(token: string) {
+    async fetchByToken(token: string, tx?: EntityManager) {
         const cachedUser = this.cache.get(token);
 
         if (cachedUser) {
             return cachedUser;
         }
 
-        const fetchedUser = await this.repository.findOneBy({ token });
+        const repository = tx ? tx.getRepository(User) : this.repository;
+        const fetchedUser = await repository.findOneBy({ token });
 
         if (!fetchedUser) {
             throw new NotFoundException('Δε βρέθηκε χρήστης με αυτό το κλειδί');

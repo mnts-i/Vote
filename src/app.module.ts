@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
 
 // Websocket Gateways
-import { VoteGateway } from './gateways/vote.gateway';
+import { StateGateway } from './gateways/state.gateway';
 
 // Guards
 import { AuthenticateGuard } from './guards/authenticate.guard';
@@ -27,6 +27,11 @@ import { StarsRepository } from './repos/stars.repository';
 // Services
 import { VoteService } from './services/vote.service';
 
+// State Stages
+import { StageIdle } from './state/stage-idle';
+import { StageVoting } from './state/stage-voting';
+import { StagePerforming } from './state/stage-performing';
+
 @Module({
 	imports: [
 		ScheduleModule.forRoot(),
@@ -48,7 +53,7 @@ import { VoteService } from './services/vote.service';
 		TokensController,
 	],
 	providers: [
-		VoteGateway,
+		StateGateway,
 
 		AuthenticateGuard,
 		AdministratorGuard,
@@ -57,6 +62,10 @@ import { VoteService } from './services/vote.service';
 		StarsRepository,
 
 		VoteService,
+        
+        StageIdle,
+        StageVoting,
+        StagePerforming,
 	]
 })
 export class AppModule { }
