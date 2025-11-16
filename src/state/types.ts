@@ -51,11 +51,22 @@ export interface Results extends BaseState {
 
 export type State = Idle | Performing | Voting | Results;
 
-export interface Stage<S extends State = any> {
-    getState: () => Promise<Omit<S, 'props'>>;
+export abstract class Stage<S extends State = any> {
+    protected enabled = false;
 
-    enable: (server: Server, props: S['props']) => Promise<void>;
+    abstract getState(): Promise<Omit<S, 'props'>>;
     
-    afterEnable: () => Promise<void>;
-    beforeDisable: () => Promise<void>;
+    async beforeEnable(): Promise<void> { }
+    
+    async afterEnable(): Promise<void> {
+        this.enabled = true;
+    }
+
+    async enable(props: S['props']): Promise<void> { }
+
+    async beforeDisable(): Promise<void> { }
+
+    async afterDisable(): Promise<void> {
+        this.enabled = false;
+    }
 }

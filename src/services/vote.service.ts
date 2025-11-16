@@ -69,6 +69,12 @@ export class VoteService {
         });
     }
 
+    clearCache(starId?: number) {
+        typeof starId === 'number' && !Number.isNaN(starId)
+            ? this.cache.delete(starId) 
+            : this.cache.clear();
+    }
+
     async getRankings() {
         return await this.votesRepository
             .createQueryBuilder('vote')

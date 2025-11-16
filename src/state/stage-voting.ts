@@ -1,8 +1,9 @@
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
+import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+
+// DTOs
 import { VoteDto } from 'src/dto/vote.dto';
-import { validate } from 'class-validator';
-import { plainToInstance } from 'class-transformer';
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 
 // Entities
 import { Star } from 'src/entities/star.entity';
@@ -11,12 +12,13 @@ import { Star } from 'src/entities/star.entity';
 import { VoteService } from 'src/services/vote.service';
 
 // Types
-import { Stage, Voting } from './types';
+import { Stage, type Voting } from './types';
 
-@Injectable()
-export class StageVoting implements Stage<Voting> {
+@WebSocketGateway()
+export class StageVoting extends Stage<Voting> {
     private readonly logger = new Logger(StageVoting.name);
 
+    @WebSocketServer()
     private server: Server;
 
     private star: Star;
@@ -25,7 +27,9 @@ export class StageVoting implements Stage<Voting> {
 
     constructor(
         private readonly voteService: VoteService
-    ) { }
+    ) {
+        super();
+    }
 
     async getState() {
         return {
@@ -36,52 +40,43 @@ export class StageVoting implements Stage<Voting> {
         };
     }
 
-    async enable(server: Server, props: Voting['props']) {
+    async enable(props: Voting['props']) {
+        await super.enable(props);
+        
         this.star = props.star;
         this.started = new Date();
         this.currentVotes = 0;
-
-        this.server = server;
     }
 
-    async afterEnable() {
-        this.server.on('connection', this.onConnect);
+    async afterEnable(): Promise<void> {
+        await super.afterEnable();
 
-        for (const socket of this.server.sockets.sockets.values()) {
-            
-        }
-
-        this.logger.log('Attached vote listener!');
-
-        this.logger.log(`Updating initial votes count for star: ${this.star.name}`);
+        // The star might have previous votes?
         this.currentVotes = (await this.voteService.fetchStarVotes(this.star.id)).size;
     }
 
-    async beforeDisable() {
-        this.server.off('connection', this.onConnect);
-        this.logger.log('Dettached vote listener!');
+    async afterDisable(): Promise<void> {
+        await super.afterDisable();
+
+        this.voteService.clearCache(this.star.id);
     }
 
-    private onConnect(socket: Socket) {
-        socket.on('vote', this.onVote);
-    }
+    @SubscribeMessage('vote')
+    async onVote(
+        @MessageBody() payload: VoteDto,
+    ) {
+        if (!this.enabled || !this.server) {
+            return;
+        }
 
-    private async onVote(data: any, cb: (payload: { error?: string; }) => void) {
         try {
-            const payload = plainToInstance(VoteDto, data, { excludeExtraneousValues: true });
-            const errors = await validate(payload);
-    
-            if (errors && errors.length !== 0) {
-                throw new BadRequestException('Λάθος payload');
-            }
-
-            const votesMap = await this.voteService.vote(data);
+            const votesMap = await this.voteService.vote(payload);
 
             this.currentVotes = votesMap.size;
 
             this.server.emit('state', this.getState());
 
-            cb({});
+            return {};
         } catch (err) {
 
             // In case the error is not a BadRequest and NotFound exception then display an error in the console
@@ -90,7 +85,7 @@ export class StageVoting implements Stage<Voting> {
                 this.logger.error(err);
             }
 
-            cb({ error: err.message || 'Προέκυψε κάποιο σφάλμα' });
+            return { error: err.message || 'Προέκυψε κάποιο σφάλμα' };
         }
     }
 }

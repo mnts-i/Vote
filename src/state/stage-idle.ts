@@ -1,15 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { WebSocketGateway } from '@nestjs/websockets';
 
 // Types
 import { Stage, Idle } from './types';
 
-@Injectable()
-export class StageIdle implements Stage<Idle> {
+@WebSocketGateway()
+export class StageIdle extends Stage<Idle> {
     async getState() {
         return { stage: 'IDLE' as const };
     }
-
-    async enable() { }
-    async afterEnable() { }
-    async beforeDisable() { }
 }

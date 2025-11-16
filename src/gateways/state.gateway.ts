@@ -8,10 +8,11 @@ import { type Stage, type State } from 'src/state/types';
 // Stages
 import { StageIdle } from 'src/state/stage-idle';
 import { StageVoting } from 'src/state/stage-voting';
+import { StageResults } from 'src/state/stage-results';
 import { StagePerforming } from 'src/state/stage-performing';
 
 @WebSocketGateway()
-export class StateGateway implements OnGatewayInit, OnGatewayConnection {
+export class StateGateway implements OnGatewayConnection {
     private readonly logger = new Logger(StateGateway.name);
     
     private stage: Stage;
@@ -22,6 +23,7 @@ export class StateGateway implements OnGatewayInit, OnGatewayConnection {
     constructor(
         private readonly stageIdle: StageIdle,
         private readonly stageVoting: StageVoting,
+        private readonly stageResults: StageResults,
         private readonly stagePerforming: StagePerforming,
     ) {
         this.stage = stageIdle;
@@ -30,10 +32,6 @@ export class StateGateway implements OnGatewayInit, OnGatewayConnection {
     async handleConnection(client: Socket) {
         client.emit('state', await this.getState());
         this.logger.log('New socket.io connection: ' + client.id);
-    }
-
-    afterInit(server: Server) {
-        this.server = server;
     }
 
     async getState() {
@@ -60,10 +58,10 @@ export class StateGateway implements OnGatewayInit, OnGatewayConnection {
         }
 
         if (name === 'RESULTS') {
-            // TODO: Implement
+            this.stage = this.stageResults;
         }
 
-        await this.stage.enable(this.server, props);
+        await this.stage.enable(props);
         await this.stage.afterEnable();
 
         this.server.emit('state', await this.getState());

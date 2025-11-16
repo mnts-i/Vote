@@ -1,5 +1,4 @@
-import { Server } from 'socket.io';
-import { Injectable } from '@nestjs/common';
+import { WebSocketGateway } from '@nestjs/websockets';
 
 // Entities
 import { Star } from 'src/entities/star.entity';
@@ -7,8 +6,8 @@ import { Star } from 'src/entities/star.entity';
 // Types
 import { Performing, Stage } from './types';
 
-@Injectable()
-export class StagePerforming implements Stage<Performing> {
+@WebSocketGateway()
+export class StagePerforming extends Stage<Performing> {
     private star: Star;
 
     async getState() {
@@ -18,10 +17,9 @@ export class StagePerforming implements Stage<Performing> {
         };
     }
 
-    async enable(_server: Server, props: Performing['props']) {
+    async enable(props: Performing['props']) {
+        await super.enable(props);
+
         this.star = props.star;
     }
-
-    async afterEnable() { }
-    async beforeDisable() { }
 }

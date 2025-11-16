@@ -30,6 +30,7 @@ import { VoteService } from './services/vote.service';
 // State Stages
 import { StageIdle } from './state/stage-idle';
 import { StageVoting } from './state/stage-voting';
+import { StageResults } from './state/stage-results';
 import { StagePerforming } from './state/stage-performing';
 
 @Module({
@@ -65,6 +66,7 @@ import { StagePerforming } from './state/stage-performing';
         
         StageIdle,
         StageVoting,
+		StageResults,
         StagePerforming,
 	]
 })
