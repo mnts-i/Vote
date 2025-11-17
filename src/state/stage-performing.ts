@@ -6,7 +6,7 @@ import { Star } from 'src/entities/star.entity';
 // Types
 import { Performing, Stage } from './types';
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: true })
 export class StagePerforming extends Stage<Performing> {
     private star: Star;
 

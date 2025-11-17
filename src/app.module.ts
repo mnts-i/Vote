@@ -18,6 +18,7 @@ import { Vote } from './entities/vote.entity';
 // Controllers
 import { StarsController } from './controllers/stars.controller';
 import { UsersController } from './controllers/users.controller';
+import { StateController } from './controllers/state.controller';
 import { TokensController } from './controllers/tokens.controller';
 
 // Repositories
@@ -51,6 +52,7 @@ import { StagePerforming } from './state/stage-performing';
 	controllers: [
 		StarsController,
 		UsersController,
+        StateController,
 		TokensController,
 	],
 	providers: [

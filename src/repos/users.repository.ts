@@ -6,7 +6,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 // Entities
 import { User } from 'src/entities/user.entity';
 
-const nanoid = customAlphabet('123456789qwertyujlcvpfghka', 8);
+const nanoid = customAlphabet('123456789qwertyujlcvpfghka', 11);
 
 @Injectable()
 export class UsersRepository {

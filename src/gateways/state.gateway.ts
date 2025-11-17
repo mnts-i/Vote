@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { OnGatewayConnection, OnGatewayInit, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 
 // Types
 import { type Stage, type State } from 'src/state/types';
@@ -11,8 +11,8 @@ import { StageVoting } from 'src/state/stage-voting';
 import { StageResults } from 'src/state/stage-results';
 import { StagePerforming } from 'src/state/stage-performing';
 
-@WebSocketGateway()
-export class StateGateway implements OnGatewayConnection {
+@WebSocketGateway({ cors: true })
+export class StateGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly logger = new Logger(StateGateway.name);
     
     private stage: Stage;
@@ -31,10 +31,14 @@ export class StateGateway implements OnGatewayConnection {
 
     async handleConnection(client: Socket) {
         client.emit('state', await this.getState());
-        this.logger.log('New socket.io connection: ' + client.id);
+        this.logger.log('New socket connected: ' + client.id);
     }
 
-    async getState() {
+    handleDisconnect(client: Socket) {
+        this.logger.log('Socket disconnected: ' + client.id);
+    }
+
+    async getState(): Promise<Omit<State, 'props'>> {
         return this.stage.getState();
     }
 
@@ -65,6 +69,6 @@ export class StateGateway implements OnGatewayConnection {
         await this.stage.afterEnable();
 
         this.server.emit('state', await this.getState());
-        this.logger.log('Stage changed to: ' + this.stage);
+        this.logger.log('Stage changed to: ' + name);
     }
 }

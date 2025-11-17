@@ -1,4 +1,3 @@
-import { Server } from 'socket.io';
 
 // Type
 import { Star } from 'src/entities/star.entity';

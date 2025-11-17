@@ -11,7 +11,7 @@ import { VoteService } from 'src/services/vote.service';
 // Types
 import { Stage, type Voting } from './types';
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: true })
 export class StageResults extends Stage<Voting> {
     private readonly logger = new Logger(StageResults.name);
 
