@@ -15,6 +15,9 @@ export class Star {
     @Column('varchar', { nullable: true })
     color?: string | null;
 
+    @Column('varchar', { nullable: true })
+    image?: string | null;
+
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 }

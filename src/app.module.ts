@@ -10,6 +10,9 @@ import { StateGateway } from './gateways/state.gateway';
 import { AuthenticateGuard } from './guards/authenticate.guard';
 import { AdministratorGuard } from './guards/administrator.guard';
 
+// Pipes
+import { ImageMimeValidationPipe } from './pipes/image-mime-validation.pipe';
+
 // Entities
 import { Star } from './entities/star.entity';
 import { User } from './entities/user.entity';
@@ -27,6 +30,7 @@ import { StarsRepository } from './repos/stars.repository';
 
 // Services
 import { VoteService } from './services/vote.service';
+import { ImageService } from './services/image.service';
 
 // State Stages
 import { StageIdle } from './state/stage-idle';
@@ -61,10 +65,13 @@ import { StagePerforming } from './state/stage-performing';
 		AuthenticateGuard,
 		AdministratorGuard,
 
+		ImageMimeValidationPipe,
+
 		UsersRepository,
 		StarsRepository,
 
 		VoteService,
+		ImageService,
         
         StageIdle,
         StageVoting,

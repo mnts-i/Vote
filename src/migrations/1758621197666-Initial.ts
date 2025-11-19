@@ -11,6 +11,7 @@ export class Initial1758621197666 implements MigrationInterface {
                 { name: 'name', type: 'varchar' },
                 { name: 'field', type: 'varchar', isNullable: true },
                 { name: 'color', type: 'varchar', isNullable: true },
+                { name: 'image', type: 'varchar', isNullable: true },
 
                 { name: 'created_at', type: 'datetime', default: `(datetime('now'))` },
             ]

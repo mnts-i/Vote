@@ -1,8 +1,12 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 
 // Guards
 import { AuthenticateGuard } from 'src/guards/authenticate.guard';
 import { AdministratorGuard } from 'src/guards/administrator.guard';
+
+// Pipes
+import { ImageMimeValidationPipe } from 'src/pipes/image-mime-validation.pipe';
 
 // Repositories
 import { StarsRepository } from '../repos/stars.repository';
@@ -52,5 +56,24 @@ export class StarsController {
         @Param('id', ParseIntPipe) id: number
     ) {
         return this.starsRepository.delete(id);
+    }
+    
+    @UseGuards(AdministratorGuard)
+    @Delete(':id/image')
+    deleteStarImage(
+        @Param('id', ParseIntPipe) id: number
+    ) { 
+
+    }
+
+    @UseGuards(AdministratorGuard)
+    @UseInterceptors(FileInterceptor('file'))
+    @Post(':id/image')
+    uploadStarImage(
+        @UploadedFile(
+            new ImageMimeValidationPipe(),
+        ) file: Express.Multer.File
+    ) {
+
     }
 }
