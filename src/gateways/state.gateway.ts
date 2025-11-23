@@ -38,6 +38,10 @@ export class StateGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.logger.log('Socket disconnected: ' + client.id);
     }
 
+    invalidate() {
+        return this.stage.invalidate();
+    }
+
     async getState(): Promise<Omit<State, 'props'>> {
         return this.stage.getState();
     }

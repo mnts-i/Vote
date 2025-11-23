@@ -63,17 +63,18 @@ export class StarsController {
     deleteStarImage(
         @Param('id', ParseIntPipe) id: number
     ) { 
-
+        return this.starsRepository.deleteImage(id);
     }
 
     @UseGuards(AdministratorGuard)
     @UseInterceptors(FileInterceptor('file'))
     @Post(':id/image')
     uploadStarImage(
+        @Param('id', ParseIntPipe) id: number,
         @UploadedFile(
             new ImageMimeValidationPipe(),
         ) file: Express.Multer.File
     ) {
-
+        return this.starsRepository.uploadImage(id, file);
     }
 }

@@ -2,6 +2,7 @@ import { join } from 'node:path';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 // Websocket Gateways
 import { StateGateway } from './gateways/state.gateway';
@@ -41,6 +42,16 @@ import { StagePerforming } from './state/stage-performing';
 @Module({
 	imports: [
 		ScheduleModule.forRoot(),
+
+        ServeStaticModule.forRoot({
+            rootPath: join(process.cwd(), 'IMAGES'),
+            serveRoot: '/images',
+        }),
+
+        ServeStaticModule.forRoot({
+            rootPath: join(process.cwd(), 'static'),
+            exclude: ['/api*', '/images*'],
+        }),
 
 		TypeOrmModule.forRoot({
 			type: 'better-sqlite3',

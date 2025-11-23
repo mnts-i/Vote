@@ -12,14 +12,15 @@ export class ImageService {
 
     async compressImage(file: Express.Multer.File) {
         const id = nanoid();
-        const path = join(this.imageDir, `img_${id}.jpg`);
+        const name = `img_${id}.jpg`;
+        const path = join(this.imageDir, name);
 
         try {
             await sharp(file.buffer, { autoOrient: true })
                 .resize({
                     fit: 'inside',
-                    width: 400,
-                    height: 400,
+                    width: 600,
+                    height: 600,
                     withoutEnlargement: true,
                 })
                 .jpeg({ quality: 80 })
@@ -29,6 +30,6 @@ export class ImageService {
             throw new InternalServerErrorException('Σφάλμα κατά την επεξεργασία της φωτογραφίας');
         }
 
-        return path;
+        return name;
     }
 }

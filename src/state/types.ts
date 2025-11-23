@@ -54,6 +54,8 @@ export abstract class Stage<S extends State = any> {
     protected enabled = false;
 
     abstract getState(): Promise<Omit<S, 'props'>>;
+
+    async invalidate() { }
     
     async beforeEnable(): Promise<void> { }
     

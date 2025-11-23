@@ -41,8 +41,6 @@ export class Initial1758621197666 implements MigrationInterface {
         const votesTable = new Table({
             name: 'votes',
             columns: [
-                { name: 'id', type: 'integer',  isPrimary: true, generationStrategy: 'increment' },
-
                 { name: 'user_id', type: 'integer' },
                 { name: 'star_id', type: 'integer' },
                 { name: 'score', type: 'integer' },
@@ -52,6 +50,8 @@ export class Initial1758621197666 implements MigrationInterface {
         });
 
         await queryRunner.createTable(votesTable);
+
+        await queryRunner.createPrimaryKey(votesTable, ['user_id', 'star_id'], 'vote_pk');
 
         await queryRunner.createForeignKey(votesTable, new TableForeignKey({
             name: 'vote_to_user_fk',
@@ -76,11 +76,6 @@ export class Initial1758621197666 implements MigrationInterface {
             columnNames: ['star_id']
         }))
         
-        await queryRunner.createUniqueConstraint(votesTable, new TableUnique({
-            name: 'vote_per_star_unique_idx',
-            columnNames: ['user_id', 'star_id'],
-        }));
-
         await queryRunner.manager.getRepository(User).save({
             token: 'feneri1986!',
             isAdmin: true,

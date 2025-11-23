@@ -6,9 +6,6 @@ import { TokenDto } from './token.dto';
 
 export class VoteDto extends PickType(TokenDto, ['token']) {
 
-    @IsString()
-    id: string;
-
     @IsInt()
     @IsPositive()
     starId: number;

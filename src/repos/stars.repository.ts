@@ -1,8 +1,9 @@
+import { StateGateway } from 'src/gateways/state.gateway';
 import fs from 'fs-extra';
 import { join } from 'node:path';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
-import { Injectable, NotFoundException, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, OnApplicationBootstrap } from '@nestjs/common';
 
 // Entities
 import { Star } from 'src/entities/star.entity';
@@ -11,19 +12,20 @@ import { Star } from 'src/entities/star.entity';
 import { CreateStarDto } from 'src/dto/create-star.dto';
 
 // Services
-import { ImageService } from '../services/image.service';
+import { ImageService } from 'src/services/image.service';
 
 @Injectable()
 export class StarsRepository implements OnApplicationBootstrap {
     private readonly cache = new Map<number, Star>();
+    private readonly logger = new Logger(StarsRepository.name);
     private readonly imagesDir = join(process.cwd(), 'IMAGES');
 
     constructor(
+        private readonly stateGateway: StateGateway,
         private readonly imageService: ImageService,
         @InjectRepository(Star)
         private readonly repository: Repository<Star>
     ) { }
-
 
     async onApplicationBootstrap() {
         await fs.ensureDir(this.imagesDir);
@@ -65,6 +67,8 @@ export class StarsRepository implements OnApplicationBootstrap {
 
         this.cache.set(id, newStar);
 
+        await this.stateGateway.invalidate();
+
         return newStar;
     }
 
@@ -87,13 +91,26 @@ export class StarsRepository implements OnApplicationBootstrap {
 
         await fs.remove(join(this.imagesDir, star.image));
         await this.repository.save({ ...star, image: null });
+        
+        this.cache.delete(id);
+
+        await this.stateGateway.invalidate();
     }
 
     async uploadImage(id: number, file: Express.Multer.File) {
         const star = await this.fetchById(id);
-
         const image = await this.imageService.compressImage(file);
+        const oldImage = star.image ? join(this.imagesDir, star.image) : null;
+        
+        if (oldImage) {
+            await fs.remove(oldImage);
+        }
 
-        await this.repository.save({ ...star, image });
+        // Update and store to cache
+        this.cache.set(id, await this.repository.save({ ...star, image }));
+
+        this.logger.log('Profile image uploaded for: ' + star.name);
+
+        await this.stateGateway.invalidate();
     }
 }
