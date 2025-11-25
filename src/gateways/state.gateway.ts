@@ -51,7 +51,8 @@ export class StateGateway implements OnGatewayConnection, OnGatewayDisconnect {
             return;
         }
 
-        await this.stage.beforeDisable();
+        const oldStage = this.stage;
+        await oldStage.beforeDisable();
 
         if (name === 'IDLE') {
             this.stage = this.stageIdle;
@@ -69,10 +70,14 @@ export class StateGateway implements OnGatewayConnection, OnGatewayDisconnect {
             this.stage = this.stageResults;
         }
 
+        await oldStage.afterDisable();
+        await this.stage.beforeEnable();
+        
         await this.stage.enable(props);
+        this.logger.log('Stage changed to: ' + name);
+        
         await this.stage.afterEnable();
 
         this.server.emit('state', await this.getState());
-        this.logger.log('Stage changed to: ' + name);
     }
 }

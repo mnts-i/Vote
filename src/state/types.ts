@@ -1,3 +1,4 @@
+import { Dayjs } from 'dayjs';
 
 // Type
 import { Star } from 'src/entities/star.entity';
@@ -25,7 +26,7 @@ export interface Performing extends BaseState {
 export interface Voting extends BaseState {
     stage: 'VOTING';
     star: Star;
-    started: Date;
+    started: Dayjs;
     currentVotes: number;
     props: {
         star: Star;
@@ -39,8 +40,9 @@ export interface Results extends BaseState {
     stars: Array<
         Star & {
             state: 'WAITING' | 'COUNTING' | 'FINISHED';
-            votes: number[];
-            started: number | null;
+            started: Dayjs | null;
+            totalScore: number;
+            totalVotes: number;
         }
     >;
     props: {

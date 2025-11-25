@@ -1,8 +1,12 @@
+import utc from 'dayjs/plugin/utc';
+import dayjs, { Dayjs } from 'dayjs';
 import { Server } from 'socket.io';
 import { EntityManager } from 'typeorm';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+
+dayjs.extend(utc);
 
 // DTOs
 import { VoteDto } from 'src/dto/vote.dto';
@@ -25,7 +29,7 @@ export class StageVoting extends Stage<Voting> {
     private server: Server;
 
     private star: Star;
-    private started: Date;
+    private started: Dayjs;
     private currentVotes: number;
 
     constructor(
@@ -61,7 +65,7 @@ export class StageVoting extends Stage<Voting> {
         await super.enable(props);
         
         this.star = props.star;
-        this.started = new Date();
+        this.started = dayjs.utc();
         this.currentVotes = 0;
     }
 

@@ -94,7 +94,7 @@ export class VoteService {
     async getRankings() {
         return await this.votesRepository
             .createQueryBuilder('vote')
-            .select('vote.starId')
+            .select('vote.starId', 'starId')
             .addSelect('COUNT(vote.starId)', 'totalVotes')
             .addSelect('SUM(vote.score)', 'totalScore')
             .addSelect('AVG(vote.score)', 'avgScore')

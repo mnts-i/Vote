@@ -43,6 +43,6 @@ export class StateController {
 
     @Post('/results')
     setToResults() {
-
+        return this.stateGateway.setStage('RESULTS', { countDuration: 8000 })
     }
 }
