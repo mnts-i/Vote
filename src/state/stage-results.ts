@@ -25,7 +25,9 @@ export class StageResults extends Stage<Results> {
     private server: Server;
 
     private stars: Results['stars'];
+    private biggestAvg: number;
     private biggestScore: number;
+    private biggestShrunk: number;
     private countDuration: number;
 
     private loop: NodeJS.Timeout | null = null;
@@ -43,7 +45,9 @@ export class StageResults extends Stage<Results> {
         return {
             stage: 'RESULTS' as const,
             stars: this.stars,
+            biggestAvg: this.biggestAvg,
             biggestScore: this.biggestScore,
+            biggestShrunk: this.biggestShrunk,
             countDuration: this.countDuration,
         };
     }
@@ -61,21 +65,29 @@ export class StageResults extends Stage<Results> {
 
         const stars = await this.manager.getRepository(Star).find();
         const rankings = await this.voteService.getRankings();
-
-        console.log(rankings)
-
+        
+        let biggestAvg = 0;
         let biggestScore = 0;
+        let biggestShrunk = 0;
 
         this.stars = stars.map(s => {
-            const entry = rankings.find(r => r.starId === s.id);
+            const entry = rankings[s.id];
 
+            const avg = entry?.avg ?? 0;
             const totalScore = entry?.totalScore ?? 0;
             const totalVotes = entry?.totalVotes ?? 0;
+            const shrunkScore = entry?.shrunkScore ?? 0;
 
-            return { ...s, totalScore, totalVotes, state: 'WAITING', started: null };
+            biggestAvg = avg > biggestAvg ? avg : biggestAvg;
+            biggestScore = totalScore > biggestScore ? totalScore : biggestScore;
+            biggestShrunk = shrunkScore > biggestShrunk ? shrunkScore : biggestShrunk;
+
+            return { ...s, avg, totalScore, totalVotes, shrunkScore, state: 'WAITING', started: null };
         });
 
+        this.biggestAvg = biggestAvg;
         this.biggestScore = biggestScore;
+        this.biggestShrunk = biggestShrunk;
 
         this.logger.log('Starting results loop...');
 

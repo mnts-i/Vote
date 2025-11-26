@@ -13,6 +13,16 @@ import { User } from 'src/entities/user.entity';
 
 type VoteCache = Map<number, Map<number, number>>;
 
+type RankingsResult = {
+    [key: number]: {
+        avg: number;
+        starId: number;
+        totalVotes: number;
+        totalScore: number;
+        shrunkScore: number;
+    };
+};
+
 @Injectable()
 export class VoteService {
     private cache: VoteCache = new Map();
@@ -92,19 +102,48 @@ export class VoteService {
     }
 
     async getRankings() {
-        return await this.votesRepository
-            .createQueryBuilder('vote')
-            .select('vote.starId', 'starId')
-            .addSelect('COUNT(vote.starId)', 'totalVotes')
-            .addSelect('SUM(vote.score)', 'totalScore')
-            .addSelect('AVG(vote.score)', 'avgScore')
-            .groupBy('vote.starId')
-            .orderBy('avgScore', 'DESC')
-            .getRawMany<{
-                starId: number;
-                totalVotes: number;
-                totalScore: number;
-                avgScore: number;
-            }>();
+        const votes = await this.votesRepository.find({
+            select: ['starId', 'score'],
+            order: {
+                starId: 'ASC'
+            }
+        });
+
+        console.log(votes)
+
+        let totalStars = 0;
+
+        const votesMap = votes.reduce((map, { score, starId }) => {
+            totalStars += score;
+
+            map.set(starId, [...(map.get(starId) ?? []), score]);
+
+            return map;
+        }, new Map<number, number[]>());
+
+        const totalVotes = votes.length;
+        const globalMean = totalStars / totalVotes;
+
+        const k = 8;
+
+        return Array.from(votesMap.entries()).reduce((map, [starId, scores]) => {
+            const v = scores.length;
+            const sum = scores.reduce((acc, s) => acc + s, 0);
+            const avg = v > 0 ? sum / v : 0;
+
+            const shrunkScore = v > 0
+                ? (v * avg + k * globalMean) / (v + k)
+                : globalMean;
+
+            map[starId] = {
+                avg,
+                starId,
+                totalVotes: v,
+                totalScore: sum,
+                shrunkScore,
+            };
+
+            return map;
+        }, {} as RankingsResult);
     }
 }
