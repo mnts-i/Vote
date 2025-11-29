@@ -11,8 +11,9 @@ import { ImageMimeValidationPipe } from 'src/pipes/image-mime-validation.pipe';
 // Repositories
 import { StarsRepository } from '../repos/stars.repository';
 
-// Stars
+// DTOs
 import { CreateStarDto } from 'src/dto/create-star.dto';
+import { ReorderStarsDto } from 'src/dto/reorder-stars.dto';
 
 @UseGuards(AuthenticateGuard)
 @Controller('/api/stars')
@@ -39,6 +40,14 @@ export class StarsController {
         @Body() data: CreateStarDto,
     ) {
         return this.starsRepository.create(data);
+    }
+
+    @UseGuards(AdministratorGuard)
+    @Post('reorder')
+    reorderStars(
+        @Body() { ids }: ReorderStarsDto
+    ) { 
+        return this.starsRepository.reorder(ids);
     }
 
     @UseGuards(AdministratorGuard)

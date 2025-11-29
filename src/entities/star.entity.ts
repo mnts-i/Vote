@@ -18,6 +18,9 @@ export class Star {
     @Column('varchar', { nullable: true })
     image?: string | null;
 
+    @Column('int')
+    position: number;
+
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 }

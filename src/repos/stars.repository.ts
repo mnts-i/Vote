@@ -23,6 +23,7 @@ export class StarsRepository implements OnApplicationBootstrap {
     constructor(
         private readonly stateGateway: StateGateway,
         private readonly imageService: ImageService,
+
         @InjectRepository(Star)
         private readonly repository: Repository<Star>
     ) { }
@@ -52,12 +53,22 @@ export class StarsRepository implements OnApplicationBootstrap {
 
     fetchAll() {
         return this.repository.find({
-            order: { createdAt: 'ASC' }
+            order: { position: 'ASC' }
         });
     }
 
     async create(data: CreateStarDto) {
-        return this.repository.save(data);
+        const lastStar = await this.repository.findOne({
+            select: ['position'],
+            where: {},
+            order: {
+                position: 'DESC'
+            }
+        });
+
+        const position = lastStar?.position ?? 1;
+
+        return this.repository.save({ ...data, position });
     }
 
     async update(id: number, data: CreateStarDto) {
@@ -91,7 +102,7 @@ export class StarsRepository implements OnApplicationBootstrap {
 
         await fs.remove(join(this.imagesDir, star.image));
         await this.repository.save({ ...star, image: null });
-        
+
         this.cache.delete(id);
 
         await this.stateGateway.invalidate();
@@ -101,7 +112,7 @@ export class StarsRepository implements OnApplicationBootstrap {
         const star = await this.fetchById(id);
         const image = await this.imageService.compressImage(file);
         const oldImage = star.image ? join(this.imagesDir, star.image) : null;
-        
+
         if (oldImage) {
             await fs.remove(oldImage);
         }
@@ -112,5 +123,11 @@ export class StarsRepository implements OnApplicationBootstrap {
         this.logger.log('Profile image uploaded for: ' + star.name);
 
         await this.stateGateway.invalidate();
+    }
+
+    async reorder(ids: number[]) {
+        for (const [pos, id] of ids.entries()) {
+            await this.repository.update({ id }, { position: pos + 1 });
+        }
     }
 }
