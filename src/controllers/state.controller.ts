@@ -41,8 +41,10 @@ export class StateController {
         return this.stateGateway.setStage('VOTING', { star });
     }
 
-    @Post('/results')
-    setToResults() {
-        return this.stateGateway.setStage('RESULTS', { countDuration: 8000 })
+    @Post('/results/:id')
+    setToResults(
+        @Param('id', ParseIntPipe) countDuration: number
+    ) {
+        return this.stateGateway.setStage('RESULTS', { countDuration })
     }
 }

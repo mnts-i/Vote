@@ -82,7 +82,7 @@ export class StageResults extends Stage<Results> {
         let biggestScore = 0;
         let biggestShrunk = 0;
 
-        this.stars = stars.map((s, order) => {
+        this.stars = stars.map((s) => {
             const entry = rankings[s.id];
 
             const avg = entry?.avg ?? 0;
@@ -96,6 +96,8 @@ export class StageResults extends Stage<Results> {
 
             return { ...s, avg, totalScore, totalVotes, shrunkScore, animating: true, visibleScore: 0 };
         });
+
+        console.log(this.stars);
 
         this.biggestAvg = biggestAvg;
         this.biggestScore = biggestScore;
