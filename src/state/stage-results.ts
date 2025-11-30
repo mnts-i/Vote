@@ -1,5 +1,6 @@
 import utc from 'dayjs/plugin/utc';
 import dayjs, { Dayjs } from 'dayjs';
+import duration from 'dayjs/plugin/duration';
 import { Server } from 'socket.io';
 import { Logger } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
@@ -7,6 +8,7 @@ import { InjectEntityManager } from '@nestjs/typeorm';
 import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 
 dayjs.extend(utc);
+dayjs.extend(duration);
 
 // Entities
 import { Star } from 'src/entities/star.entity';
@@ -17,14 +19,21 @@ import { VoteService } from 'src/services/vote.service';
 // Types
 import { Stage, type Results } from './types';
 
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+
 @WebSocketGateway({ cors: true })
 export class StageResults extends Stage<Results> {
+    private readonly TICK_RATE = 100;
     private readonly logger = new Logger(StageResults.name);
 
     @WebSocketServer()
     private server: Server;
 
     private stars: Results['stars'];
+    private started: Dayjs;
+    private progress: number;
+    private finished: boolean;
+
     private biggestAvg: number;
     private biggestScore: number;
     private biggestShrunk: number;
@@ -45,6 +54,9 @@ export class StageResults extends Stage<Results> {
         return {
             stage: 'RESULTS' as const,
             stars: this.stars,
+            started: this.started,
+            progress: this.progress,
+            finished: this.finished,
             biggestAvg: this.biggestAvg,
             biggestScore: this.biggestScore,
             biggestShrunk: this.biggestShrunk,
@@ -65,12 +77,12 @@ export class StageResults extends Stage<Results> {
 
         const stars = await this.manager.getRepository(Star).find();
         const rankings = await this.voteService.getRankings();
-        
+
         let biggestAvg = 0;
         let biggestScore = 0;
         let biggestShrunk = 0;
 
-        this.stars = stars.map(s => {
+        this.stars = stars.map((s, order) => {
             const entry = rankings[s.id];
 
             const avg = entry?.avg ?? 0;
@@ -82,7 +94,7 @@ export class StageResults extends Stage<Results> {
             biggestScore = totalScore > biggestScore ? totalScore : biggestScore;
             biggestShrunk = shrunkScore > biggestShrunk ? shrunkScore : biggestShrunk;
 
-            return { ...s, avg, totalScore, totalVotes, shrunkScore, state: 'WAITING', started: null };
+            return { ...s, avg, totalScore, totalVotes, shrunkScore, animating: true, visibleScore: 0 };
         });
 
         this.biggestAvg = biggestAvg;
@@ -91,38 +103,81 @@ export class StageResults extends Stage<Results> {
 
         this.logger.log('Starting results loop...');
 
+        this.loop = null;
+        this.started = dayjs.utc();
+        this.progress = 0;
+        this.finished = false;
+
         this.runLoop();
     }
 
     async beforeDisable(): Promise<void> {
         await super.beforeDisable();
 
-        if (this.loop) {
+        if (this.loop !== null) {
             this.logger.log('Clearing running loop...');
+            this.clearLoop();
+        }
+    }
+
+    private clearLoop = () => {
+        if (this.loop !== null) {
             clearTimeout(this.loop);
+            this.loop = null;
         }
     }
 
     private async runLoop() {
-        const idx = this.stars.findIndex(s => s.state === 'WAITING');
-        const pending = this.stars.reduce((total, s) => s.state === 'WAITING' ? total + 1 : total, 0);
+        const diff = dayjs.utc().diff(this.started, 'milliseconds');
+        const progress = clamp(diff / this.countDuration, 0, 1);
 
-        if (idx === -1) {
-            this.server.emit('state', await this.getState());
-            this.logger.log('Completed showing results!!!');
-            return;
+        if (this.finished) { return; }
+
+        this.progress = progress * 100;
+
+        // Done
+        if (progress >= 1) {
+            this.finished = true;
+            this.calculateOrder(progress);
+            this.clearLoop();
+            await this.emitState();
+            this.logger.log('Completed showing results!');
         }
 
-        this.stars[idx].state = 'COUNTING';
-        this.stars[idx].started = dayjs.utc();
+        // Tick
+        if (progress < 1) {
+            this.logger.log(`Ticking: ${(progress * 100).toFixed(2)}%`);
+            this.calculateOrder(progress);
+            this.emitState();
+            this.loop = setTimeout(() => this.runLoop(), this.TICK_RATE);
+        }
+    }
 
-        this.logger.log('Showing: ' + this.stars[idx].name);
+    private calculateOrder(progress: number) {
+        const stars = this.stars.map(s => {
+            const maxProgress = clamp(s.shrunkScore / this.biggestShrunk, 0, 1);
+            const currentProgress = clamp(progress / maxProgress, 0, 1);
 
-        this.loop = setTimeout(() => {
-            this.stars[idx].state = 'FINISHED';
-            this.runLoop();
-        }, pending === 0 ? 100 : this.countDuration);
+            const animating = currentProgress < 1;
+            const visibleScore = s.shrunkScore * currentProgress;
 
+            if (s.animating && !animating) {
+                this.logger.log(`Count completed for: ${s.name}`);
+            }
+
+            return {
+                ...s,
+                animating,
+                visibleScore: Number.isInteger(visibleScore)
+                    ? visibleScore
+                    : +visibleScore.toFixed(2),
+            };
+        }).sort((a, b) => b.visibleScore - a.visibleScore);
+
+        this.stars = stars;
+    }
+
+    private async emitState() {
         this.server.emit('state', await this.getState());
     }
 }

@@ -109,8 +109,6 @@ export class VoteService {
             }
         });
 
-        console.log(votes)
-
         let totalStars = 0;
 
         const votesMap = votes.reduce((map, { score, starId }) => {
