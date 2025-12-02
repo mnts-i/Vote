@@ -2,13 +2,21 @@ import sharp from 'sharp';
 import { join } from 'node:path';
 import { customAlphabet } from 'nanoid';
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstABCDEFGHIJKLMNOPwzWZ', 20);
 
 @Injectable()
 export class ImageService {
+    private readonly imageDir: string;
+
     private readonly logger = new Logger(ImageService.name);
-    private readonly imageDir = join(process.cwd(), 'data', 'images');
+
+    constructor(
+        configService: ConfigService
+    ) {
+        this.imageDir = configService.getOrThrow('IMAGES_DIR');
+    }
 
     async compressImage(file: Express.Multer.File) {
         const id = nanoid();

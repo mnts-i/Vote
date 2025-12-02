@@ -1,6 +1,6 @@
-import { StateGateway } from 'src/gateways/state.gateway';
 import fs from 'fs-extra';
 import { join } from 'node:path';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { Injectable, Logger, NotFoundException, OnApplicationBootstrap } from '@nestjs/common';
@@ -11,22 +11,30 @@ import { Star } from 'src/entities/star.entity';
 // DTOs
 import { CreateStarDto } from 'src/dto/create-star.dto';
 
+// Gateways
+import { StateGateway } from 'src/gateways/state.gateway';
+
 // Services
 import { ImageService } from 'src/services/image.service';
 
 @Injectable()
 export class StarsRepository implements OnApplicationBootstrap {
+    private readonly imagesDir: string;
+
     private readonly cache = new Map<number, Star>();
     private readonly logger = new Logger(StarsRepository.name);
-    private readonly imagesDir = join(process.cwd(), 'data', 'images');
 
     constructor(
+        configService: ConfigService,
+        
         private readonly stateGateway: StateGateway,
         private readonly imageService: ImageService,
 
         @InjectRepository(Star)
         private readonly repository: Repository<Star>
-    ) { }
+    ) {
+        this.imagesDir = configService.getOrThrow('IMAGES_DIR');
+    }
 
     async onApplicationBootstrap() {
         await fs.ensureDir(this.imagesDir);

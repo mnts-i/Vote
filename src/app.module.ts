@@ -3,6 +3,10 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
+// Configurations
+import configurations from './config';
 
 // Websocket Gateways
 import { StateGateway } from './gateways/state.gateway';
@@ -41,22 +45,35 @@ import { StagePerforming } from './state/stage-performing';
 
 @Module({
 	imports: [
-		ScheduleModule.forRoot(),
-
-		ServeStaticModule.forRoot({
-			rootPath: join(process.cwd(), 'data', 'images'),
-			serveRoot: '/images',
-		}, {
-			rootPath: join(process.cwd(), 'static'),
+		ConfigModule.forRoot({
+			load: [configurations],
+			isGlobal: true,
 		}),
 
-		TypeOrmModule.forRoot({
-			type: 'better-sqlite3',
-			database: join(process.cwd(), 'data', 'database.sqlite3'),
+		ScheduleModule.forRoot(),
 
-			entities: [join(process.cwd(), 'dist', '**', '*.entity.{ts,js}')],
-			migrations: [join(process.cwd(), 'dist', 'migrations', '*.js')],
-			migrationsRun: true,
+		ServeStaticModule.forRootAsync({
+			inject: [ConfigService],
+			useFactory: (configService: ConfigService) => [
+				{
+					rootPath: configService.getOrThrow('IMAGES_DIR'),
+					serveRoot: '/images',
+				}, {
+					rootPath: join(process.cwd(), 'static'),
+				}
+			]
+		}),
+
+		TypeOrmModule.forRootAsync({
+			inject: [ConfigService],
+			useFactory: (configService: ConfigService) => ({
+				type: 'better-sqlite3',
+				database: join(configService.getOrThrow('DATABASE_DIR'), 'database.sqlite3'),
+
+				entities: [join(process.cwd(), 'dist', '**', '*.entity.{ts,js}')],
+				migrations: [join(process.cwd(), 'dist', 'migrations', '*.js')],
+				migrationsRun: true,
+			}),
 		}),
 
 		TypeOrmModule.forFeature([Star, User, Vote])
