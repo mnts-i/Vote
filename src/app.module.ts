@@ -43,14 +43,13 @@ import { StagePerforming } from './state/stage-performing';
 	imports: [
 		ScheduleModule.forRoot(),
 
-        ServeStaticModule.forRoot({
-            rootPath: join(process.cwd(), 'data', 'images'),
-            serveRoot: '/images',
+		ServeStaticModule.forRoot({
+            rootPath: join(process.cwd(), 'static'),
         }),
 
         ServeStaticModule.forRoot({
-            rootPath: join(process.cwd(), 'static'),
-            exclude: ['/api*', '/images*'],
+            rootPath: join(process.cwd(), 'data', 'images'),
+            serveRoot: '/images',
         }),
 
 		TypeOrmModule.forRoot({
