@@ -8,7 +8,7 @@ const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstABCDEFGHIJKLMNOPwzW
 @Injectable()
 export class ImageService {
     private readonly logger = new Logger(ImageService.name);
-    private readonly imageDir = join(process.cwd(), 'IMAGES');
+    private readonly imageDir = join(process.cwd(), 'data', 'images');
 
     async compressImage(file: Express.Multer.File) {
         const id = nanoid();

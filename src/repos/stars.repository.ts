@@ -18,7 +18,7 @@ import { ImageService } from 'src/services/image.service';
 export class StarsRepository implements OnApplicationBootstrap {
     private readonly cache = new Map<number, Star>();
     private readonly logger = new Logger(StarsRepository.name);
-    private readonly imagesDir = join(process.cwd(), 'IMAGES');
+    private readonly imagesDir = join(process.cwd(), 'data', 'images');
 
     constructor(
         private readonly stateGateway: StateGateway,

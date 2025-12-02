@@ -44,7 +44,7 @@ import { StagePerforming } from './state/stage-performing';
 		ScheduleModule.forRoot(),
 
         ServeStaticModule.forRoot({
-            rootPath: join(process.cwd(), 'IMAGES'),
+            rootPath: join(process.cwd(), 'data', 'images'),
             serveRoot: '/images',
         }),
 
@@ -55,7 +55,7 @@ import { StagePerforming } from './state/stage-performing';
 
 		TypeOrmModule.forRoot({
 			type: 'better-sqlite3',
-			database: join(process.cwd(), 'database.sqlite3'),
+			database: join(process.cwd(), 'data', 'database.sqlite3'),
 
 			entities: [join(process.cwd(), 'dist', '**', '*.entity.{ts,js}')],
 			migrations: [join(process.cwd(), 'dist', 'migrations', '*.js')],
