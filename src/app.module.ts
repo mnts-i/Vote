@@ -44,13 +44,11 @@ import { StagePerforming } from './state/stage-performing';
 		ScheduleModule.forRoot(),
 
 		ServeStaticModule.forRoot({
-            rootPath: join(process.cwd(), 'static'),
-        }),
-
-        ServeStaticModule.forRoot({
-            rootPath: join(process.cwd(), 'data', 'images'),
-            serveRoot: '/images',
-        }),
+			rootPath: join(process.cwd(), 'data', 'images'),
+			serveRoot: '/images',
+		}, {
+			rootPath: join(process.cwd(), 'static'),
+		}),
 
 		TypeOrmModule.forRoot({
 			type: 'better-sqlite3',
@@ -66,7 +64,7 @@ import { StagePerforming } from './state/stage-performing';
 	controllers: [
 		StarsController,
 		UsersController,
-        StateController,
+		StateController,
 		TokensController,
 	],
 	providers: [
@@ -82,11 +80,11 @@ import { StagePerforming } from './state/stage-performing';
 
 		VoteService,
 		ImageService,
-        
-        StageIdle,
-        StageVoting,
+
+		StageIdle,
+		StageVoting,
 		StageResults,
-        StagePerforming,
+		StagePerforming,
 	]
 })
 export class AppModule { }
