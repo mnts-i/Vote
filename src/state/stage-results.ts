@@ -75,7 +75,7 @@ export class StageResults extends Stage<Results> {
 
         this.logger.log('Fetching stars and rankings...');
 
-        const stars = await this.manager.getRepository(Star).find();
+        const stars = await this.manager.getRepository(Star).find({ order: { position: 'ASC' } });
         const rankings = await this.voteService.getRankings();
 
         let biggestAvg = 0;
@@ -127,7 +127,7 @@ export class StageResults extends Stage<Results> {
             clearTimeout(this.loop);
             this.loop = null;
         }
-    }
+    };
 
     private async runLoop() {
         const diff = dayjs.utc().diff(this.started, 'milliseconds');
