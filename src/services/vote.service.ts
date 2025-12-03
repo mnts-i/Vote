@@ -122,7 +122,7 @@ export class VoteService {
         const totalVotes = votes.length;
         const globalMean = totalStars / totalVotes;
 
-        const k = 8;
+        const k = 0;
 
         return Array.from(votesMap.entries()).reduce((map, [starId, scores]) => {
             const v = scores.length;
